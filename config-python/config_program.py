@@ -382,10 +382,11 @@ class DiagnosticsCharacteristic(Characteristic):
             ipAddress = str(wlanIP)
 
         diagnosticsProto = diagnostics_pb2.diagnostics_v1()
-        diagnosticsProto.diagnostics['connected'] = str(self.p2pstatus[0][1])
-        diagnosticsProto.diagnostics['dialable'] = str(self.p2pstatus[1][1])
-        diagnosticsProto.diagnostics['height'] = str(self.p2pstatus[3][1])
-        diagnosticsProto.diagnostics['nat_type'] = str(self.p2pstatus[2][1])
+        diagnosticsProto.diagnostics['well-connected'] = str(self.p2pstatus[0][1])
+        diagnosticsProto.diagnostics['dialable'] = str(self.p2pstatus[2][1])
+        diagnosticsProto.diagnostics['height'] = str(self.p2pstatus[4][1])
+        diagnosticsProto.diagnostics['nat_type'] = str(self.p2pstatus[3][1])
+        diagnosticsProto.diagnostics['sessions'] = str(self.p2pstatus[1][1])
         try:
             diagnosticsProto.diagnostics['eth'] = \
                 open("/sys/class/net/eth0/address").readline(). \
