@@ -17,7 +17,7 @@ Directory layout:
 Running locally:
 
 ```
-PYTHONPATH=./ MINER_KEYS_FILEPATH=./example/onboarding_key.txt ETH0_MAC_ADDRESS_PATH=./example/eth0_mac_address.txt python minerconfig
+PYTHONPATH=./ LOAD_FROM_DOTENV_FILEPATH=./example/.env python gatewayconfig
 ```
 
 Because the stack is tightly intertwined with Balena, the easiest way to test the code base on your own Raspberry Pi in your own Balena project.

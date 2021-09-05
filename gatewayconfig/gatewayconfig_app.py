@@ -1,12 +1,21 @@
 import sentry_sdk
 import threading
-from gpiozero import Button, LED
+
+# Attempt to load GPIO libraries, if there is a failure, fallback to mocks.
+# The mocks are only intended to be used by test code.
 try:
     # checks if you have access to RPi.GPIO, which is available inside RPi
     import RPi.GPIO as GPIO
+    from gpiozero import Button, LED
+
 except:
     # In case of exception, you are executing your script outside of RPi, so import Mock.GPIO
     import Mock.GPIO as GPIO
+
+    # Also mock gpiozero pins
+    from gpiozero import Device
+    from gpiozero.pins.mock import MockFactory
+    Device.pin_factory = MockFactory()
 
 from hm_hardware_defs.variant import variant_definitions
 
@@ -24,14 +33,14 @@ USER_BUTTON_HOLD_SECONDS = 2
 
 class GatewayconfigApp:
     def __init__(self, sentry_dsn, balena_app_name, balena_device_uuid, variant, eth0_mac_address_filepath, wlan0_mac_address_filepath,
-        miner_keys_filepath, diagnostics_json_url, ethernet_is_online_filepath, firmware_version):
+        miner_keys_filepath, diagnostics_json_url, ethernet_is_online_filepath, firmware_version, is_gpio_enabled):
 
         self.variant = variant
         self.variant_details = variant_definitions[variant]
         self.init_sentry(sentry_dsn, balena_app_name, balena_device_uuid, variant)
         self.shared_state = GatewayconfigSharedState()
         self.init_nmcli()
-        self.init_gpio()
+        self.init_gpio(is_gpio_enabled)
 
         eth0_mac_address = read_eth0_mac_address(eth0_mac_address_filepath)
         wlan0_mac_address = read_wlan0_mac_address(wlan0_mac_address_filepath)
@@ -40,7 +49,7 @@ class GatewayconfigApp:
         logger.debug("Read onboarding pub_key: %s + animal_name: %s" % (pub_key, animal_name))
 
         self.bluetooth_services_processor = BluetoothServicesProcessor(eth0_mac_address, wlan0_mac_address, onboarding_key, pub_key, firmware_version, ethernet_is_online_filepath, self.shared_state)
-        self.led_processor = LEDProcessor(self.status_led, self.shared_state)
+        self.led_processor = LEDProcessor(self.status_led, self.shared_state, self.is_gpio_enabled)
         self.diagnostics_processor = DiagnosticsProcessor(diagnostics_json_url, self.shared_state)
         self.wifi_processor = WifiProcessor(self.shared_state)
         self.bluetooth_advertisement_processor = BluetoothAdvertisementProcessor(eth0_mac_address, self.shared_state, self.variant_details)
@@ -72,10 +81,16 @@ class GatewayconfigApp:
     def init_nmcli(self):
         nmcli_custom.disable_use_sudo()
 
-    def init_gpio(self):
-        self.user_button = Button(self.get_button_pin(), hold_time=USER_BUTTON_HOLD_SECONDS)
-        self.user_button.when_held= self.start_bluetooth_advertisement
-        self.status_led = LED(self.get_status_led_pin())
+    def init_gpio(self, is_gpio_enabled):
+        self.is_gpio_enabled = is_gpio_enabled
+
+        if is_gpio_enabled:
+            self.user_button = Button(self.get_button_pin(), hold_time=USER_BUTTON_HOLD_SECONDS)
+            self.user_button.when_held= self.start_bluetooth_advertisement
+            self.status_led = LED(self.get_status_led_pin())
+        else:
+            self.user_button = None
+            self.status_led = None
 
     # Use daemon threads so that everything exists cleanly when the program stops
     def start_threads(self):
