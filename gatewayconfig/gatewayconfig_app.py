@@ -1,22 +1,6 @@
 import sentry_sdk
 import threading
 
-# Attempt to load GPIO libraries, if there is a failure, fallback to mocks.
-# The mocks are only intended to be used by test code.
-try:
-    # checks if you have access to RPi.GPIO, which is available inside RPi
-    import RPi.GPIO as GPIO
-    from gpiozero import Button, LED
-
-except:
-    # In case of exception, you are executing your script outside of RPi, so import Mock.GPIO
-    import Mock.GPIO as GPIO
-
-    # Also mock gpiozero pins
-    from gpiozero import Device
-    from gpiozero.pins.mock import MockFactory
-    Device.pin_factory = MockFactory()
-
 from hm_hardware_defs.variant import variant_definitions
 
 from gatewayconfig.logger import logger
@@ -69,7 +53,10 @@ class GatewayconfigApp:
 
     def stop(self):
         logger.debug("Stopping ConfigApp")
-        GPIO.cleanup()
+        if self.is_gpio_enabled:
+            global GPIO
+            GPIO.cleanup()
+
         # Quits the cputemp application
         self.bluetooth_services_processor.quit()
 
@@ -81,10 +68,31 @@ class GatewayconfigApp:
     def init_nmcli(self):
         nmcli_custom.disable_use_sudo()
 
+    def load_gpio_lib(self):
+        global GPIO, Button, LED
+        from gpiozero import Button, LED
+
+        # Attempt to load GPIO libraries, if there is a failure, fallback to mocks.
+        # The mocks are only intended to be used by test code.
+        try:
+            # checks if you have access to RPi.GPIO, which is available inside RPi
+            import RPi.GPIO as GPIO
+
+        except:
+            # In case of exception, you are executing your script outside of RPi, so import Mock.GPIO
+            import Mock.GPIO as GPIO
+
+            # Also mock gpiozero pins
+            from gpiozero import Device
+            from gpiozero.pins.mock import MockFactory
+            Device.pin_factory = MockFactory()
+
     def init_gpio(self, is_gpio_enabled):
         self.is_gpio_enabled = is_gpio_enabled
 
         if is_gpio_enabled:
+            global Button, LED
+            self.load_gpio_lib()
             self.user_button = Button(self.get_button_pin(), hold_time=USER_BUTTON_HOLD_SECONDS)
             self.user_button.when_held= self.start_bluetooth_advertisement
             self.status_led = LED(self.get_status_led_pin())
