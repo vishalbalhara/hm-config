@@ -8,14 +8,14 @@ RETRY_SLEEP_SECONDS = 60
 Loads the onboarding file and returns 
 
 pub_key, onboarding_key, animal_name
+
+Onboarding key originally created in helium/miner: https://github.com/helium/miner/blob/bdfbbe9db5809598b210f564d3d206eee56dfdf7/src/miner_keys.erl
+Then copied as part of hm-miner: https://github.com/NebraLtd/hm-miner/blob/2fdfa76de1a398c0a876075aced1e0332ca211f1/start-miner.sh
 """
-
 @retry(FileNotFoundError, delay=RETRY_SLEEP_SECONDS, logger=logger)
-
-# Onboarding key originally created in helium/miner: https://github.com/helium/miner/blob/bdfbbe9db5809598b210f564d3d206eee56dfdf7/src/miner_keys.erl
-# Then copied as part of hm-miner: https://github.com/NebraLtd/hm-miner/blob/2fdfa76de1a398c0a876075aced1e0332ca211f1/start-miner.sh
 def read_miner_keys(miner_keys_filepath):
-
+    logger.debug("Attempting to read miner keys from %s" % miner_keys_filepath)
+    
     with open(miner_keys_filepath) as miner_keys_file:
         miner_keys = {}
 
