@@ -13,7 +13,8 @@ import gatewayconfig.constants as constants
 
 DBUS_UNAVAILABLE_VALUE = "Loading..."
 logger = get_logger(__name__)
-logging.getLogger('dbus').disabled = True
+dbus_logger = logging.getLogger('dbus.proxies') #.disabled = True
+dbus_logger.handlers = []
 
 
 class DiagnosticsCharacteristic(Characteristic):
