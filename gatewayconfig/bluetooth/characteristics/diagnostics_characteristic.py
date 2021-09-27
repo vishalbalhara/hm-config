@@ -1,6 +1,6 @@
 import dbus
 import os
-
+import logging
 from lib.cputemp.service import Characteristic
 
 from gatewayconfig.logger import get_logger
@@ -13,7 +13,7 @@ import gatewayconfig.constants as constants
 
 DBUS_UNAVAILABLE_VALUE = "Loading..."
 logger = get_logger(__name__)
-#logging.getLogger('dbus').disabled = True
+logging.getLogger('dbus').disabled = True
 
 
 class DiagnosticsCharacteristic(Characteristic):
