@@ -40,6 +40,8 @@ RUN \
             python3-dev=3.7.3-1 \
             gir1.2-gtk-3.0=3.24.5-1 \
             libdbus-1-3=1.12.20-0+deb10u1 \
+            libdbus-glib-1-2=0.110-4 \
+            libdbus-glib-1-dev=0.110-4 \
             --no-install-recommends && \
     # Because the PATH is already updated above, this command creates a new venv AND activates it
     python3 -m venv /opt/venv && \
