@@ -1,6 +1,5 @@
 import dbus
 import os
-import logging
 from lib.cputemp.service import Characteristic
 
 from gatewayconfig.logger import get_logger
@@ -13,8 +12,6 @@ import gatewayconfig.constants as constants
 
 DBUS_UNAVAILABLE_VALUE = "Loading..."
 logger = get_logger(__name__)
-dbus_logger = logging.getLogger('dbus.proxies') #.disabled = True
-dbus_logger.handlers = []
 
 
 class DiagnosticsCharacteristic(Characteristic):
@@ -45,7 +42,7 @@ class DiagnosticsCharacteristic(Characteristic):
         logger.debug('Diagnostics miner_bus')
         miner_bus = dbus.SystemBus()
         logger.debug('Diagnostics miner_object')
-        miner_object = miner_bus.get_object('com.helium.Miner', '/')
+        miner_object = miner_bus.get_object('com.helium.Miner', '/', introspect=False)
         logger.debug('Diagnostics miner_interface')
         miner_interface = dbus.Interface(miner_object, 'com.helium.Miner')
         logger.debug('Diagnostics p2pstatus')
