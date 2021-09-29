@@ -50,7 +50,7 @@ RUN \
 ####################################################################################################
 ################################### Stage: runner ##################################################
 
-FROM balenalib/genericx86-64-ext-debian-python:buster-run-20210705 as runner
+FROM balenalib/genericx86-64-ext-debian-python:3.9.6-buster-run as runner
 
 # Install bluez, libdbus, network-manager, python3-gi, and venv
 RUN \
