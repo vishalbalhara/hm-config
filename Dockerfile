@@ -35,7 +35,7 @@ RUN \
             # https://pygobject.readthedocs.io/en/latest/getting_started.html#ubuntu-logo-ubuntu-debian-logo-debian
             libgirepository1.0-dev=1.58.3-2 \
             gcc=4:8.3.0-1 \
-            libcairo2-dev=1.16.0-4 \
+            libcairo2-dev=1.16.0-4+deb10u1 \
             pkg-config=0.29-6 \
             python3-dev=3.7.3-1 \
             gir1.2-gtk-3.0=3.24.5-1 \
