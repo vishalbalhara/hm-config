@@ -28,17 +28,17 @@ RUN \
     TZ="$SYSTEM_TIMEZONE" \
         apt-get -y install \
             python3-minimal=3.7.3-1 \
-            python3-pip=18.1-5+rpt1 \
+            python3-pip=18.1-5 \
             wget=1.20.1-1.1 \
             python3-venv=3.7.3-1 \
             # The remaining dependencies are for PyGObject
             # https://pygobject.readthedocs.io/en/latest/getting_started.html#ubuntu-logo-ubuntu-debian-logo-debian
             libgirepository1.0-dev=1.58.3-2 \
-            gcc=4:8.3.0-1+rpi2 \
-            libcairo2-dev=1.16.0-4+rpt1 \
+            gcc=4:8.3.0-1 \
+            libcairo2-dev=1.16.0-4 \
             pkg-config=0.29-6 \
             python3-dev=3.7.3-1 \
-            gir1.2-gtk-3.0=3.24.5-1+rpt2 \
+            gir1.2-gtk-3.0=3.24.5-1 \
             --no-install-recommends && \
     # Because the PATH is already updated above, this command creates a new venv AND activates it
     python3 -m venv /opt/venv && \
