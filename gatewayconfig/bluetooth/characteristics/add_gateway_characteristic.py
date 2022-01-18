@@ -70,7 +70,9 @@ class AddGatewayCharacteristic(Characteristic):
             # Calls https://github.com/helium/miner/blob/e55437beac4b46d15cbd079c9c8df045ffc0bf49/src/miner_ebus.erl#L50
             addMinerRequest = miner_interface.AddGateway(owner, fee, amount, payer)
             logger.debug("Adding Response")
-            self.notifyValue = addMinerRequest
+            # self.notifyValue = addMinerRequest
+            logger.debug("Generated request")
+            self.notifyValue = None
         except Exception:
             logger.exception("Unable to register gateway for unknown reason")
 
