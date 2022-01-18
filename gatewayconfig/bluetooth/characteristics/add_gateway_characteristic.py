@@ -71,7 +71,7 @@ class AddGatewayCharacteristic(Characteristic):
             addMinerRequest = miner_interface.AddGateway(owner, fee, amount, payer)
             logger.debug("Adding Response")
             # self.notifyValue = addMinerRequest
-            logger.debug("Generated request")
+            logger.debug(f"Generated request {addMinerRequest}")
             self.notifyValue = None
         except Exception:
             logger.exception("Unable to register gateway for unknown reason")
