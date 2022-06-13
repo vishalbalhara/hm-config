@@ -6,11 +6,12 @@
 ################################## Stage: builder ##################################################
 
 # The balenalib/raspberry-pi-debian-python image was tested but missed many dependencies.
-FROM balenalib/aarch64-debian-python:latest as builder
+FROM balenalib/aarch64-debian:buster-build as builder
 
 # Install python3-minimal, pip3, wget, venv.
 # Then set venv environment copied from builder.
 # Finally, use pip to install dependencies.
+# TODO:: gtk dependencies seem spurious, should not be required.
 RUN \
     install_packages \
             python3-minimal \
@@ -25,7 +26,10 @@ RUN \
             libcairo2-dev \
             pkg-config \
             python3-dev \
-            gir1.2-gtk-3.0
+            gir1.2-gtk-3.0 \
+            cmake \
+            libdbus-1-dev \
+            libdbus-1-3
 
 # Nebra uses /opt by convention
 WORKDIR /opt/
@@ -35,7 +39,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 RUN \
     # Because the PATH is already updated above, this command creates a new venv AND activates it
-    python3 -m venv /opt/venv
+    python3 -m venv /opt/venv && \
+    pip install --no-cache-dir --upgrade pip==22.0.1
 
 # Copy python dependencies for `pip install` later
 COPY requirements.txt requirements.txt
@@ -49,7 +54,7 @@ RUN \
 ####################################################################################################
 ################################### Stage: runner ##################################################
 
-FROM balenalib/aarch64-debian-python:latest as runner
+FROM balenalib/aarch64-debian:buster-run as runner
 
 # Install bluez, libdbus, network-manager, python3-gi, and venv
 RUN \
