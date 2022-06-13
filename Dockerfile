@@ -6,7 +6,7 @@
 ################################## Stage: builder ##################################################
 
 # The balenalib/raspberry-pi-debian-python image was tested but missed many dependencies.
-FROM balenalib/raspberry-pi-debian:buster-build-20211014 as builder
+FROM balenalib/aarch64-debian-python:latest as builder
 
 # Install python3-minimal, pip3, wget, venv.
 # Then set venv environment copied from builder.
@@ -49,7 +49,7 @@ RUN \
 ####################################################################################################
 ################################### Stage: runner ##################################################
 
-FROM balenalib/raspberry-pi-debian:buster-run-20211014 as runner
+FROM balenalib/aarch64-debian-python:latest as runner
 
 # Install bluez, libdbus, network-manager, python3-gi, and venv
 RUN \
