@@ -8,15 +8,6 @@
 # The balenalib/raspberry-pi-debian-python image was tested but missed many dependencies.
 FROM balenalib/raspberry-pi-debian:buster-build-20211014 as builder
 
-# Nebra uses /opt by convention
-WORKDIR /opt/
-
-# Copy python dependencies for `pip install` later
-COPY requirements.txt requirements.txt
-
-# This will be the path that venv uses for installation below
-ENV PATH="/opt/venv/bin:$PATH"
-
 # Install python3-minimal, pip3, wget, venv.
 # Then set venv environment copied from builder.
 # Finally, use pip to install dependencies.
@@ -34,9 +25,22 @@ RUN \
             libcairo2-dev=1.16.0-4+rpt1 \
             pkg-config=0.29-6 \
             python3-dev=3.7.3-1 \
-            gir1.2-gtk-3.0=3.24.5-1+rpt2 && \
+            gir1.2-gtk-3.0=3.24.5-1+rpt2
+
+# Nebra uses /opt by convention
+WORKDIR /opt/
+
+# This will be the path that venv uses for installation below
+ENV PATH="/opt/venv/bin:$PATH"
+
+RUN \
     # Because the PATH is already updated above, this command creates a new venv AND activates it
-    python3 -m venv /opt/venv && \
+    python3 -m venv /opt/venv
+
+# Copy python dependencies for `pip install` later
+COPY requirements.txt requirements.txt
+
+RUN \
     # Given venv is active, this `pip` refers to the python3 variant
     pip install --no-cache-dir -r requirements.txt
 
@@ -45,7 +49,7 @@ RUN \
 ####################################################################################################
 ################################### Stage: runner ##################################################
 
-FROM balenalib/raspberry-pi-debian-python:buster-run-20211014 as runner
+FROM balenalib/raspberry-pi-debian:buster-run-20211014 as runner
 
 # Install bluez, libdbus, network-manager, python3-gi, and venv
 RUN \
@@ -57,6 +61,16 @@ RUN \
         python3-gi=3.30.4-1 \
         python3-venv=3.7.3-1 \
         miniupnpc
+
+# hadolint ignore=DL3008, DL4006
+RUN export DISTRO=buster-stable && \
+    echo "deb http://apt.radxa.com/$DISTRO/ ${DISTRO%-*} main" | tee -a /etc/apt/sources.list.d/apt-radxa-com.list && \
+    wget -nv -O - apt.radxa.com/$DISTRO/public.key | apt-key add - && \
+    apt-get update && \
+    apt-get install --no-install-recommends -y libmraa && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Nebra uses /opt by convention
 WORKDIR /opt/
@@ -70,16 +84,6 @@ ENV PYTHONPATH="/opt:$PYTHONPATH"
 # Copy venv from builder and update PATH to activate it
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-
-# hadolint ignore=DL3008, DL4006
-RUN export DISTRO=buster-stable && \
-    echo "deb http://apt.radxa.com/$DISTRO/ ${DISTRO%-*} main" | tee -a /etc/apt/sources.list.d/apt-radxa-com.list && \
-    wget -nv -O - apt.radxa.com/$DISTRO/public.key | apt-key add - && \
-    apt-get update && \
-    apt-get install --no-install-recommends -y libmraa && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
 
 # This is the libmraa install location, because we are using venv
 # it must be added to path explicitly
